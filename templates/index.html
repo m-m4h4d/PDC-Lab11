@@ -1,0 +1,56 @@
+<!-- index.html -->
+ 
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/style.css">
+    <title>Solr Search UI</title>
+    <script>
+        function search() {
+            const query = document.getElementById("searchBox").value;
+            fetch(`/search?q=${query}`)
+                .then(res => res.json())
+                .then(data => {
+                    const resultsDiv = document.getElementById("results");
+                    resultsDiv.innerHTML = "";
+                    data.forEach(doc => {
+                        const item = document.createElement("div");
+                        item.innerHTML = `<strong>${doc.id}</strong>: ${JSON.stringify(doc)}`;
+                        resultsDiv.appendChild(item);
+                    });
+                });
+        }
+
+        function setupAutocomplete() {
+            const input = document.getElementById("searchBox");
+            input.addEventListener("input", function () {
+                const query = input.value;
+                fetch(`/autocomplete?q=${query}`)
+                    .then(res => res.json())
+                    .then(suggestions => {
+                        const datalist = document.getElementById("suggestions");
+                        datalist.innerHTML = "";
+                        suggestions.forEach(item => {
+                            const opt = document.createElement("option");
+                            opt.value = item;
+                            datalist.appendChild(opt);
+                        });
+                    });
+            });
+        }
+
+        window.onload = setupAutocomplete;
+    </script>
+</head>
+
+<body>
+    <h2>Solr Search</h2>
+    <input id="searchBox" list="suggestions" placeholder="Type to search..." onkeyup="search()" />
+    <datalist id="suggestions"></datalist>
+    <div id="results"></div>
+</body>
+
+</html>
